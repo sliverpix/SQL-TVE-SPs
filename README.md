@@ -89,15 +89,15 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 | --- | --- | --- |
 | `@ChannelNumber` | INT | (Required) Number of the channel to be targetted in the region following |
 | `@RegionId` | varchar(20) | (Required) Region ID as defined by TVE Region maps |
-| `@IH` | bit | ("1" = on/set & "0" = off/unset)
-| `@OOH` | bit | ("1" = on/set & "0" = off/unset)
-| `@LiveTv` | bit | ("1" = on/set & "0" = off/unset)
-| `@IsRegular` | bit | ("1" = on/set & "0" = off/unset)
-| `@VMS` | bit | ("1" = on/set & "0" = off/unset)
-| `@IndexPosition` | int | ("1" = on/set & "0" = off/unset)
-| `@MobileUrlV1` | varchar(500) | The URL to the video stream. This variable affects "mobile" devices such as cell phones. Uses HTTP protocol to the form of "http://<path to stream>/out/u/<manifest name>.m3u8"
+| `@IH` | bit | ("1" = on/set & "0" = off/unset) - When set to ON, the channel is viewable "IN HOME" and is determined by contract with the provider.
+| `@OOH` | bit | ("1" = on/set & "0" = off/unset) - When set to ON, the channel is viewable "OUT OF HOME" and is determined by contract with the provider.
+| `@LiveTv` | bit | ("1" = on/set & "0" = off/unset) - Defaults to '0'. When set the channel/service is considered a LIVE STREAMing channel/service and will display in the "WATCH NOW" section of the TVE mobile/web application. However, if `IsRegular` is not set, the behavior is quirky.
+| `@IsRegular` | bit | ("1" = on/set & "0" = off/unset) - Defaults to '0'. When set, the channel will appear in the "Listings"/"Guide" section of the TVE mobile/web application. This flag is necessary for the channel to be listed at all in any section of the application. From testing, if this flag is SET and IH/OOH is unset then the channel will **only** exist in the "Listings/Guide" section.
+| `@VMS` | bit | ("1" = on/set & "0" = off/unset) - Used for DVR TO GO features. Although this feature is hardcoded to a TVE region, this flag should be SET to prevent anomulous interactions.
+| `@IndexPosition` | int | Defaults to '0'. Must match the ID number given in BandId.cfg from the secure media servers.
+| `@MobileUrlV1` | varchar(500) | The URL to the video stream. This variable affects "mobile" devices such as cell phones. Uses HTTP protocol to the form of "http://[<path to stream>]/out/u/[<manifest name>.]m3u8"
 | `@MobileUrlV2` | varchar(500) | same as `MobileUrlV1` above.
-| `@TabletUrlV1` | varchar(500) | The URL to the video stream. This variable affects "tablet" devices such as iTabs. Uses HTTP protocol to the form of "http://<path to stream>/out/u/<manifest name>.m3u8"
+| `@TabletUrlV1` | varchar(500) | The URL to the video stream. This variable affects "tablet" devices such as iTabs. Uses HTTP protocol to the form of "http://[<path to stream>]/out/u/[<manifest name>].m3u8"
 | `@TabletUrlV2` | varchar(500) | same as `TabletUrlV1` above.
 | `@TypeV1` | varchar (100) | Unused in TVE's current environment (as far as we know). This is left over from Verizon switch over.
 | `@TypeV2` | varchar (100) | Unused in TVE's current environment (as far as we know). This is left over from Verizon switch over. 
