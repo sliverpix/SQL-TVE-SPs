@@ -60,19 +60,19 @@ Accepts the following variables.
 
 * __Filename:__	uspRemovePackagefromChannel
 * __Created:__		4/11/2019 5:23 PM
-* __Modified:__	
+* __Modified:__	5/21/2019
 * __Author:__		James Griffith
-* __Version:__		1.0
+* __Version:__		1.1
 
-(in Testing / works well for FIOS channels) Exists in the DB FIOSCE. Surgically target packages assigned to targetted channel/region and remove them ONLY from that channel in the specified region.
+(getting PTE approval from Laxmi/Mohan) Exists in the DB FIOSCE. Surgically target packages assigned to target channel/region and remove them ONLY from that channel in the specified region. Works for FIOS and Mediaroom markets.
 
 Accepts the following variables:
 
 | Variable | Type | Description |
 | --- | --- | --- |
-| @VhoId | VARCHAR(20) | (Required) Region ID as defined by TVE Region maps |
+| @ServiceRegionId | VARCHAR(20) | (Required) Region ID as defined by TVE Region maps |
 | @ChanNumber | Varchar(20) | (Required) Number of the channel to be targetted in the region following |
-| @PackageId | VARCHAR(20) | (Required) Package number to be targetted.
+| @PackageId | VARCHAR(50) | (Required) Package number to be targetted.
 
 
 * __Filename:__	uspHydraConfigChange
@@ -113,7 +113,7 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 
 ## ToDo:
 - [X]  all SPs need to be adjusted to accept numeric region ID rather than alphanumeric VHO ID's.
-- [ ]  uspRemovePackagefromChannel - add logic/mechanism for targetting MEDIAROOM channels/packages.
+- [X]  uspRemovePackagefromChannel - add logic/mechanism for targetting MEDIAROOM channels/packages.
 - [ ]  uspHydraChannelDelete - add logic/mechanism to address FSID mismatches that commonly occur when Gracenote/FYI change/remove channel data from the tfioslineup table.
 - [ ]  Create SP to handle adding zip codes to targetted TVE regions. currently we are manualy inserting them without any kind of error/duplication checks.
 
@@ -121,3 +121,5 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 ## History
 
 * 05/13/2019 - Initial creation and upload
+* 05/21/2019 - v1.1 uspRemovePackagefromChannel
+	* add logic for mediaroom package targeting
