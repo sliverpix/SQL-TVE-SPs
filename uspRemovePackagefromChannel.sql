@@ -11,9 +11,9 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 ALTER PROCEDURE [dbo].[uspRemovePackagefromChannel](
-	@VhoId VARCHAR(20),
+	@ServiceRegionID VARCHAR(20),
 	@ChanNumber Varchar(20),
-	@PackageId VARCHAR(20)
+	@PackageId VARCHAR(50)
 )
 AS
 BEGIN
@@ -116,3 +116,4 @@ DECLARE @ErrorMsg VARCHAR(50)
 				AND	intChannel = @ChanNumber
 				AND strServiceName = @packageID
 		END
+END
