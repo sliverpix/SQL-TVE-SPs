@@ -120,3 +120,5 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 * 05/13/2019 - Initial creation and upload
 * 05/21/2019 - v1.1 uspRemovePackagefromChannel
 	* add logic for mediaroom package targeting
+* 5/22/2019 - v2.1 uspHydraChannelDelete good in PTE
+	* add logic to handle mismatched FSID/AFSID between tfioslineup table and the rest of the tables.

@@ -1,16 +1,6 @@
 USE [FIOSCE]
 GO
-/****** Object:  StoredProcedure [dbo].[uspHydraChannelDelete]    Script Date: 6/28/2017 2:59:53 PM ******/
-
-/* ***
-Version:	2.1
-
-changes:	06-28-2017 	JAMES G		modified logic to look for another source for the AFSID if the main logic fails. 
-									Its important to keep both. We want to use main logic whenever possible and fall 
-									back on the secondary if need be.
-			02-22-2018	JAMES G		updated LEFT JOIN to tfiosWatchNow_ChannelInfo where needed
-			
-*** */
+/****** Object:  StoredProcedure [dbo].[uspHydraChannelDelete]    Script Date: 5/22/2019 3:54:32 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -34,7 +24,7 @@ BEGIN
 		RETURN;
 	END
 
-	Print 'Verifying parameters for updates...'
+	Print 'Verifying parameters for removal...'
 
 	--Channel Identifier
 	DECLARE @AFSID VARCHAR (20)
@@ -53,11 +43,14 @@ BEGIN
 		  AND cs.strFiosRegionId = @RegionId
 
 
-	Print 'Verifying AFSID parameters...'
+	Print 'Verifying AFSID parameter...'
 	IF (@AFSID IS NULL) 
 		BEGIN
-			print N'Parameters @AFSID returned NULL. Trying something else...'
-			-- secondary logic for AFSID
+			print 'Parameter @AFSID returned NULL. Trying something else...'
+			-- secondary logic for AFSID/FSID if mismatched to lineup table:
+			-- does AFSID match between channelSub and Watchnow?
+			-- does FSID match between channelSub and Station?
+			-- if both are TRUE.. we can use the AFSID/FSID from channelsub to properly remove the channel
 			select @AFSID = cs.strActualFIOSServiceID
 			from (select top 1 * 
 				from FIOSCE.dbo.tfiosChannel_Subscription 
@@ -76,37 +69,48 @@ BEGIN
 		END
 	ELSE
 		BEGIN
-		print N'GOT IT!';
+		print 'GOT IT!';
 		print @AFSID
 		END
 
 	-------------------------------------------------------------------------------
 	--Processing delete
 	-------------------------------------------------------------------------------
-	DELETE FIOSApp_DC_CE.dbo.tfiosWatchNow_ChannelConfig_V2
+	DELETE 
+--	SELECT * FROM 
+	FIOSApp_DC_CE.dbo.tfiosWatchNow_ChannelConfig_V2
 	WHERE strActualFiosServiceId = @AFSID	
 			AND strFiosRegionId = @RegionId
 
-	DELETE FIOSApp_DC_CE.dbo.tfiosWatchNow_ChannelConfig_V1
+	DELETE 
+--	SELECT * FROM 
+	FIOSApp_DC_CE.dbo.tfiosWatchNow_ChannelConfig_V1
 	WHERE strActualFiosServiceId = @AFSID	
 			AND strFiosRegionId = @RegionId
 
-	DELETE FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo
+	DELETE 
+--	SELECT * 
+	FROM FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo
 	WHERE strActualFiosServiceId = @AFSID	
 			AND strFiosRegionId = @RegionId
 
-	DELETE FIOSApp_DC_CE.dbo.TVEIHOHFlags 
+	DELETE 
+--	SELECT * FROM 
+	FIOSApp_DC_CE.dbo.TVEIHOHFlags 
 	WHERE regionID = @RegionId 
 		  AND channelPosn = @ChannelNumber
 
 	DELETE p
+--	SELECT p.* 
 	FROM VideoSubscriber.dbo.PackagetoServiceMapping p
 		 JOIN FIOSCE.dbo.tfiosChannel_Subscription s on p.BSG_HANDLE = s.strServiceName
 														AND p.region = s.strFiosRegionId
 	WHERE s.strActualFIOSServiceID = @AFSID
 		  AND s.strFiosRegionId = @RegionId
 
-	DELETE FIOSCE.dbo.tfiosChannel_Subscription
+	DELETE 
+--	SELECT * FROM 
+	FIOSCE.dbo.tfiosChannel_Subscription
 	WHERE strActualFIOSServiceID = @AFSID
 		  AND strFiosRegionId = @RegionId
 
