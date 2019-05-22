@@ -23,9 +23,9 @@ Exists in the DB FIOSCE. Adds a NEW channel to specified TVE Region. Accepts the
 
 ## uspHydraChannelDelete
 * __Created:__		12/30/2016 1:55 PM
-* __Modified:__	
-* __Author:__		Stacy Web
-* __Version:__		1.0
+* __Modified:__		05/22/2019
+* __Author:__		Stacy Web, James Griffith
+* __Version:__		2.1
 
 Exists in the DB FIOSCE. Removes a channel by channel number and TVE region. This removes all data in all related tables for the targetted channel. In other words, package data, config flags and URL data, are all removed as well. (Note: if a more surgical affect is needed, dont use this procedure)
 
