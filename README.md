@@ -5,10 +5,7 @@ SQL Stored Proceures for TVE (Hydra/MSV)
 Collection of stored procedures and/or tools for TVE's Live Streaming and VOD services. (Hydra/MSV)
 
 
-## Inventory
-
-
-* __Filename:__	uspHydraAddChanneltoRegion
+## 	uspHydraAddChanneltoRegion
 * __Created:__		1/6/2017 2:37 PM
 * __Modified:__	12/18/2017
 * __Author:__		Stacy Web
@@ -24,7 +21,7 @@ Exists in the DB FIOSCE. Adds a NEW channel to specified TVE Region. Accepts the
 | `@BandId` | int | Defaults to '0' and is used to link channel to Band ID from bandidcfg.xml on secure media. This linke the channel encryption to the media KEY necessary for decryption. Set to '0' for channels only to be shown in the Channel GUIDE.|
 
 
-* __Filename:__	uspHydraChannelDelete
+## uspHydraChannelDelete
 * __Created:__		12/30/2016 1:55 PM
 * __Modified:__	
 * __Author:__		Stacy Web
@@ -40,7 +37,7 @@ Accepts the following variables:
 | `@RegionId` | varchar(20) | (Required) Region ID as defined by TVE Region maps |
 
 
-* __Filename:__	uspHydraAddPackageServiceMaptoRegion
+## 	uspHydraAddPackageServiceMaptoRegion
 * __Created:__		3/31/2017 3:49 PM
 * __Modified:__	
 * __Author:__		Stacy Web
@@ -58,7 +55,7 @@ Accepts the following variables.
 | `@Service_BSG_Handle` | VARCHAR(50) | (REQUIRED) This is the service ID number (FIOS) or Package name (Mediaroom) |
 
 
-* __Filename:__	uspRemovePackagefromChannel
+## 	uspRemovePackagefromChannel
 * __Created:__		4/11/2019 5:23 PM
 * __Modified:__	5/21/2019
 * __Author:__		James Griffith
@@ -75,7 +72,7 @@ Accepts the following variables:
 | @PackageId | VARCHAR(50) | (Required) Package number to be targetted.
 
 
-* __Filename:__	uspHydraConfigChange
+## 	uspHydraConfigChange
 * __Created:__		8/24/2016 12:16 AM
 * __Modified:__	
 * __Author:__		Stacy Web
