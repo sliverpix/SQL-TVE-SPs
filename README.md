@@ -111,7 +111,7 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 ## ToDo:
 - [X]  all SPs need to be adjusted to accept numeric region ID rather than alphanumeric VHO ID's.
 - [X]  uspRemovePackagefromChannel - add logic/mechanism for targetting MEDIAROOM channels/packages.
-- [ ]  uspHydraChannelDelete - add logic/mechanism to address FSID mismatches that commonly occur when Gracenote/FYI change/remove channel data from the tfioslineup table.
+- [X ]  uspHydraChannelDelete - add logic/mechanism to address FSID mismatches that commonly occur when Gracenote/FYI change/remove channel data from the tfioslineup table.
 - [ ]  Create SP to handle adding zip codes to targetted TVE regions. currently we are manualy inserting them without any kind of error/duplication checks.
 
 
