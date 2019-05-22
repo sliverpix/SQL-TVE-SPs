@@ -1,6 +1,6 @@
 USE [FIOSCE]
 GO
-/****** Object:  StoredProcedure [dbo].[uspHydraAddChanneltoRegion]    Script Date: 5/13/2019 10:14:48 AM ******/
+/****** Object:  StoredProcedure [dbo].[uspHydraAddChanneltoRegion]    Script Date: 2/22/2018 1:15:13 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -17,6 +17,11 @@ GO
 -- TVE Ops Modified @BandId from VARCHAR (20) to VARCHAR (50). Apparently there are some bandids longer than 20 characters.
 -- Modified: Russ N 12/18/2017
 
+-- TVE OPS modified to add a required isStreamable BIT flag. If New channel is a streamable channel
+(ie: show in WATCH NOW section of app and have WATCH button in TV LISTING section) 
+ we will unlock the INSERT to tfiosWatchNow_Channelinfo, other wise we will SKIP this block 
+ of code for a GUIDE ONLY channel. (reference Jira TO-26 )
+-- MODIFIED: James G 02/22/2018
 
 */
 
@@ -24,7 +29,8 @@ ALTER PROCEDURE [dbo].[uspHydraAddChanneltoRegion](
 	@ServiceRegionId VARCHAR(10),
 	@Channel_Number int,
 	@Service_Bsg_Handle VARCHAR(50),
-	@BandId int = 0
+	@BandId int = 0,
+	@isStreamable bit = NULL
 	
 )
 AS
@@ -37,6 +43,11 @@ BEGIN
 		RETURN;
 	END
 	
+	IF (@isStreamable IS NULL)
+	BEGIN
+		raiserror('isStreamable [ref: Jira TO-26] is required! Please check this parameter and try again', 20, 0) with log;
+	END
+
 	Print 'Verifying parameters for updates...'
 	IF NOT EXISTS (SELECT 1 FROM VideoSubscriber.dbo.ServiceMaps WHERE ServiceRegionId = @ServiceRegionId) -- change VhoID to ServiceRegionId
 	BEGIN
@@ -132,40 +143,42 @@ BEGIN
 						  WHERE channelPosn = l.intChannelPosition 
 								AND regionID = l.strFIOSRegionId)
 
-
-	INSERT INTO FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo (strActualFiosServiceId, strFiosRegionId, intChannel, strType, intIndexPosition, strShortName, strBandName, IsIH, IsOOH, IsEA, IsDMA, IsRegular, LiveTV, SCheck, V1, V2, VMS, dtCreated, dtUpdated)
-	SELECT l.strActualFIOSServiceID,
-		r.ServiceRegionId,
-		l.intChannelPosition,
-	   CASE WHEN g.strStationGenre LIKE '%LOCAL%' OR g.strStationGenre LIKE '%HD BROADCAST%' THEN 'Local' ELSE 'National' END ChannelType,
-	   @BandId intIndexPosition,
-	   s.strStationCallSign,
-	   CASE @BandName WHEN '' THEN s.strStationCallSign ELSE @BandName END BandName,
-	   0 isIH,
-	   0 isOOH,
-	   0 isEA,
-	   0 isDMA,
-	   0 isRegular,
-	   0 live,
-	   0 scheck,
-	   1 V1,
-	   1 V2,
-	   0 VMS,
-	   GETDATE() dtCreated,
-	   GETDATE() dtUpdated
-	FROM FIOSApp_DC.dbo.tFIOSLineup l
-		 JOIN FIOSApp_DC.dbo.tFiosStation s ON l.strFIOSServiceId = s.strFIOSServiceId
-		 JOIN VideoSubscriber.dbo.ServiceMaps r ON l.strFIOSRegionId = r.ServiceRegionId
-		 LEFT JOIN FIOSApp_DC.dbo.tfiosStationGenre g ON l.iStationGenreID = g.iStationGenreId
-	WHERE r.ServiceRegionId = @ServiceRegionId -- change VhoId to ServiceRegionId
-		  AND l.intChannelPosition = @Channel_Number
-		  AND NOT EXISTS (SELECT 1
-						  FROM FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo
-						  WHERE intChannelPosition = l.intChannelPosition 
-								AND strActualFIOSServiceID = l.strActualFIOSServiceID
-								AND strFiosRegionId = l.strFIOSRegionId)
-
+	-- open this block of code if the new channel is streamable in WATCH NOW section of mobile app
+	IF (@isStreamable = 1)
+	BEGIN
+		INSERT INTO FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo (strActualFiosServiceId, strFiosRegionId, intChannel, strType, intIndexPosition, strShortName, strBandName, IsIH, IsOOH, IsEA, IsDMA, IsRegular, LiveTV, SCheck, V1, V2, VMS, dtCreated, dtUpdated)
+		SELECT l.strActualFIOSServiceID,
+			   r.ServiceRegionId,
+			   l.intChannelPosition,
+			   CASE WHEN g.strStationGenre LIKE '%LOCAL%' OR g.strStationGenre LIKE '%HD BROADCAST%' THEN 'Local' ELSE 'National' END ChannelType,
+			   @BandId intIndexPosition,
+			   s.strStationCallSign,
+			   CASE @BandName WHEN '' THEN s.strStationCallSign ELSE @BandName END BandName,
+			   0 isIH,
+			   0 isOOH,
+			   0 isEA,
+			   0 isDMA,
+			   0 isRegular,
+			   0 live,
+			   0 scheck,
+			   1 V1,
+			   1 V2,
+			   0 VMS,
+			   GETDATE() dtCreated,
+			   GETDATE() dtUpdated
+		FROM FIOSApp_DC.dbo.tFIOSLineup l
+			 JOIN FIOSApp_DC.dbo.tFiosStation s ON l.strFIOSServiceId = s.strFIOSServiceId
+			 JOIN VideoSubscriber.dbo.ServiceMaps r ON l.strFIOSRegionId = r.ServiceRegionId
+			 LEFT JOIN FIOSApp_DC.dbo.tfiosStationGenre g ON l.iStationGenreID = g.iStationGenreId
+		WHERE r.ServiceRegionId = @ServiceRegionId -- change VhoId to ServiceRegionId
+			  AND l.intChannelPosition = @Channel_Number
+			  AND NOT EXISTS (SELECT 1
+							  FROM FIOSApp_DC_CE.dbo.tfiosWatchNow_Channelinfo
+							  WHERE intChannelPosition = l.intChannelPosition 
+									AND strActualFIOSServiceID = l.strActualFIOSServiceID
+									AND strFiosRegionId = l.strFIOSRegionId)
+	END
 	
-	Print 'Done! - No red text - No Issues for channel ' + CAST(@Channel_Number AS VARCHAR)
+	Print 'Done! - No red text - No Issues'
 END
 
