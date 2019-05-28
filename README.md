@@ -5,10 +5,7 @@ SQL Stored Proceures for TVE (Hydra/MSV)
 Collection of stored procedures and/or tools for TVE's Live Streaming and VOD services. (Hydra/MSV)
 
 
-## Inventory
-
-
-* __Filename:__	uspHydraAddChanneltoRegion
+## 	uspHydraAddChanneltoRegion
 * __Created:__		1/6/2017 2:37 PM
 * __Modified:__	12/18/2017
 * __Author:__		Stacy Web
@@ -24,11 +21,11 @@ Exists in the DB FIOSCE. Adds a NEW channel to specified TVE Region. Accepts the
 | `@BandId` | int | Defaults to '0' and is used to link channel to Band ID from bandidcfg.xml on secure media. This linke the channel encryption to the media KEY necessary for decryption. Set to '0' for channels only to be shown in the Channel GUIDE.|
 
 
-* __Filename:__	uspHydraChannelDelete
+## uspHydraChannelDelete
 * __Created:__		12/30/2016 1:55 PM
-* __Modified:__	
-* __Author:__		Stacy Web
-* __Version:__		1.0
+* __Modified:__		05/22/2019
+* __Author:__		Stacy Web, James Griffith
+* __Version:__		2.1
 
 Exists in the DB FIOSCE. Removes a channel by channel number and TVE region. This removes all data in all related tables for the targetted channel. In other words, package data, config flags and URL data, are all removed as well. (Note: if a more surgical affect is needed, dont use this procedure)
 
@@ -40,7 +37,7 @@ Accepts the following variables:
 | `@RegionId` | varchar(20) | (Required) Region ID as defined by TVE Region maps |
 
 
-* __Filename:__	uspHydraAddPackageServiceMaptoRegion
+## 	uspHydraAddPackageServiceMaptoRegion
 * __Created:__		3/31/2017 3:49 PM
 * __Modified:__	
 * __Author:__		Stacy Web
@@ -58,7 +55,7 @@ Accepts the following variables.
 | `@Service_BSG_Handle` | VARCHAR(50) | (REQUIRED) This is the service ID number (FIOS) or Package name (Mediaroom) |
 
 
-* __Filename:__	uspRemovePackagefromChannel
+## 	uspRemovePackagefromChannel
 * __Created:__		4/11/2019 5:23 PM
 * __Modified:__	5/21/2019
 * __Author:__		James Griffith
@@ -75,7 +72,7 @@ Accepts the following variables:
 | @PackageId | VARCHAR(50) | (Required) Package number to be targetted.
 
 
-* __Filename:__	uspHydraConfigChange
+## 	uspHydraConfigChange
 * __Created:__		8/24/2016 12:16 AM
 * __Modified:__	
 * __Author:__		Stacy Web
@@ -114,7 +111,7 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 ## ToDo:
 - [X]  all SPs need to be adjusted to accept numeric region ID rather than alphanumeric VHO ID's.
 - [X]  uspRemovePackagefromChannel - add logic/mechanism for targetting MEDIAROOM channels/packages.
-- [ ]  uspHydraChannelDelete - add logic/mechanism to address FSID mismatches that commonly occur when Gracenote/FYI change/remove channel data from the tfioslineup table.
+- [X]  uspHydraChannelDelete - add logic/mechanism to address FSID mismatches that commonly occur when Gracenote/FYI change/remove channel data from the tfioslineup table.
 - [ ]  Create SP to handle adding zip codes to targetted TVE regions. currently we are manualy inserting them without any kind of error/duplication checks.
 
 
@@ -123,3 +120,5 @@ Always specify a value for ChannelNumber and RegionId to determine the channel t
 * 05/13/2019 - Initial creation and upload
 * 05/21/2019 - v1.1 uspRemovePackagefromChannel
 	* add logic for mediaroom package targeting
+* 5/22/2019 - v2.1 uspHydraChannelDelete good in PTE
+	* add logic to handle mismatched FSID/AFSID between tfioslineup table and the rest of the tables.
