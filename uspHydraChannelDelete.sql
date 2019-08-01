@@ -1,6 +1,8 @@
 USE [FIOSCE]
 GO
-/****** Object:  StoredProcedure [dbo].[uspHydraChannelDelete]    Script Date: 5/22/2019 3:54:32 PM ******/
+/****** Object:  StoredProcedure [dbo].[uspHydraChannelDelete]    Script Date: 5/22/2019 3:54:32 PM 	******/
+-- Version 2.1
+
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -27,7 +29,23 @@ BEGIN
 	Print 'Verifying parameters for removal...'
 
 	--Channel Identifier
-	DECLARE @AFSID VARCHAR (20)
+	DECLARE @AFSID VARCHAR (20),
+	-- For Logs
+	@IH bit = NULL,
+	@OOH bit = NULL,
+	@LiveTv bit = NULL,
+	@IsRegular bit = NULL,
+	@VMS bit = NULL,
+	@IndexPosition int = NULL,
+	@MobileUrlV1 varchar(500) = NULL,
+	@MobileUrlV2 varchar(500) = NULL,
+	@TabletUrlV1 varchar(500) = NULL,
+	@TabletUrlV2 varchar(500) = NULL,
+	@TypeV1 varchar (100) = NULL, 
+	@TypeV2 varchar (100) = NULL
+
+
+	
 	-- main logic for AFSID
 	SELECT @AFSID = cs.strActualFIOSServiceID
 	FROM (SELECT TOP 1 * 
@@ -51,7 +69,7 @@ BEGIN
 			-- does AFSID match between channelSub and Watchnow?
 			-- does FSID match between channelSub and Station?
 			-- if both are TRUE.. we can use the AFSID/FSID from channelsub to properly remove the channel
-			select @AFSID = cs.strActualFIOSServiceID
+			select @AFSID = cs.strActualFIOSServiceID, @IH = cs.IH, @OOH = cs.OOH, @VMS = cs.VMS, @IsRegular = wn.IsRegular, @LiveTv = wn.LiveTV, @VMS = cs.VMS, @IndexPosition = cs.IndexPosition
 			from (select top 1 * 
 				from FIOSCE.dbo.tfiosChannel_Subscription 
 				where intChannel= @ChannelNumber 
@@ -72,6 +90,24 @@ BEGIN
 		print 'GOT IT!';
 		print @AFSID
 		END
+		
+	-- Log our Changes
+	DECLARE @ChannelLineUpChangesParametersId int
+
+	INSERT INTO FIOSCE.dbo.ChannelLineUpChangesParameters(Action, ChannelNumber, RegionId, IH, OOH, IsRegular, LiveTv, VMS, IndexPosition, MobileUrlV1, MobileUrlV2, TabletUrlV1, TabletUrlV2, TypeV1, TypeV2, IPURLV1, IPURLV2, NetworkIdV1, NetworkIdV2, TokenV1, TokenV2, intPlayModeV1, intPlayModeV2, dtCreated)
+	SELECT 'DELETE' Action, @ChannelNumber ChannelNumber, @RegionId RegionId, @IH IH, @OOH OOH, @IsRegular IsRegular, @LiveTv LiveTv, @VMS VMS, @IndexPosition IndexPosition, @MobileUrlV1 MobileUrlV1, @MobileUrlV2 MobileUrlV2, @TabletUrlV1 TabletUrlV1, @TabletUrlV2 TabletUrlU2, @TypeV1 TypeV1, @TypeV2 TypeV2, @IPURLV1 IPURLV1, @IPURLV2 IPURLV2, @NetworkIdV1 NetworkIdV1, @NetworkIdV2 NetworkIdV2, @TokenV1 TokenV1, @TokenV2 TokenV2, @intPlayModeV1 intPlayModeV1, @intPlayModeV2 PlayModeV2, GETDATE() dtCreated
+
+	SELECT @ChannelLineUpChangesParametersId = @@IDENTITY
+
+	IF (@ChannelLineUpChangesParametersId IS NULL) 
+	BEGIN
+		raiserror('An error occured while recording parameters! Please review your parameters.', 20, 0) with log;
+		RETURN;
+	END
+	
+	
+	
+	INSERT INTO FIOSCE.dbo.ChannelLineUpChangesLog(ChannelLineUpChangesParametersId, Action, AFSID, ChannelNumber, RegionId, IH, OOH, IsRegular, LiveTv, VMS, IndexPosition, MobileUrlV1, MobileUrlV2, TabletUrlV1, TabletUrlV2, TypeV1, TypeV2, IPURLV1, IPURLV2, NetworkIdV1, NetworkIdV2, TokenV1, TokenV2, intPlayModeV1, intPlayModeV2, ChannelSubscriptionRows, TVEIhOhFlagsUpdatedRows, WatchNowChannelInfoRows, WatchNowChannelConfigV1Rows, WatchNowChannelConfigV2Rows, dtCreated)
 
 	-------------------------------------------------------------------------------
 	--Processing delete
