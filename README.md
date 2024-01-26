@@ -1,3 +1,5 @@
+# Project is defunct and here for reference only
+
 # SQL TVE Stored Procedure Library
 SQL Stored Proceures for TVE (Hydra/MSV)
 
